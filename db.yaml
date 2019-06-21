@@ -1,0 +1,5 @@
+driver : 'pymysql'
+username : 'root'
+password : ''
+host : 'localhost'
+database : 'musicdata'
