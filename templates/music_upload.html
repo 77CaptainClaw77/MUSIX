@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <form method="POST" enctype="multipart/form-data">
+        Song Name (Mandatory): <input type="text" name="song_name"> <br> 
+        Artist Name : <input type="text" name="artist_name"> <br>
+        Album Name : <input type="text" name="album_name"> <br>
+        Album Cover Image:<input type="file" name="album_image_input"> <br> 
+        Artist Image: <input type="file" name="artist_image_input"> <br>
+        Music File: <input type="file" name="song_input"> <br>
+        <input type="submit" value="Upload File"> <br>
+    </form>
+    {% if data['error']!= 'None' %} {{ data['error'] }} {% endif %}
+</body>
+</html>
