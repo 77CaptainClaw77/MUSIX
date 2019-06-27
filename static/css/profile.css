@@ -1,109 +1,55 @@
+body
+{
+  padding-top: 100px;
+  font-family: sans-serif;
+  color:#3c3939;
+  background-image: url("../img/back.jpg");
+  background-repeat: no-repeat;
+  background-size: 100%;
 
-
-body {
-  background: #F1F3FA;
 }
+.profile-card
+{
 
-/* Profile container */
-.profile {
-  margin: 20px 0;
-}
-
-/* Profile sidebar */
-.profile-sidebar {
-  padding: 20px 0 10px 0;
+  width:350px;
+  margin: auto;
   background: #fff;
+  box-shadow: 0 4px 10px 0 rgba(0,0,0,0.5);
+    border-radius: 10px;
+
+
 }
+.image-container
+{
 
-.profile-userpic img {
-  float: none;
-  margin:  600px;
-  width: 50%;
-  height: 50%;
+  position: relative;
 
-  border-radius: 50% ;
+
 }
+.info
+{
+  color: #4b4fe2;
+  margin-right: 16px;
 
-.profile-usertitle {
-  text-align: center;
-  margin-top: 500px;
-  margin-left: 500px;
 }
+.main-container
+{
 
-.profile-usertitle-name {
-  color: #5a7391;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 100px;
-}
-
-.profile-usertitle-job {
-  text-transform: uppercase;
-  color: #5b9bd1;
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 15px;
-}
-
-.profile-userbuttons {
-  text-align: center;
-  margin-top: 10px;
-}
-
-.profile-userbuttons .btn {
-  text-transform: uppercase;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 6px 15px;
-  margin-right: 5px;
-}
-
-.profile-userbuttons .btn:last-child {
-  margin-right: 0px;
-}
-
-.profile-usermenu {
-  margin-top: 30px;
-}
-
-.profile-usermenu ul li {
-  border-bottom: 1px solid #f0f4f7;
-}
-
-.profile-usermenu ul li:last-child {
-  border-bottom: none;
-}
-
-.profile-usermenu ul li a {
-  color: #93a3b5;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.profile-usermenu ul li a i {
-  margin-right: 8px;
-  font-size: 14px;
-}
-
-.profile-usermenu ul li a:hover {
-  background-color: #fafcfd;
-  color: #5b9bd1;
-}
-
-.profile-usermenu ul li.active {
-  border-bottom: none;
-}
-
-.profile-usermenu ul li.active a {
-  color: #5b9bd1;
-  background-color: #f6f9fb;
-  border-left: 2px solid #5b9bd1;
-  margin-left: -2px;
-}
-
-/* Profile Content */
-.profile-content {
   padding: 20px;
-  background: #fff;
-  min-height: 460px;
+
+
+
+}
+.title
+{
+padding-top: 20px;
+
+  left: 15px;
+  bottom: 0
+}
+
+.button
+{
+  padding-left: 220px;
+
 }

@@ -8,7 +8,7 @@ body{
 }
 .login_page{
   width: 240px;
-  height: 400px;
+  height: 500px;
   background: #000;
   color: #fff;
   top:50%;
@@ -51,4 +51,16 @@ h1{
   height: 40px;
   color: #fff;
   font-size: 18px;
+}
+input[type=submit]{
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2px 0;
+  margin-top: 5px;
+  outline: none;
+  border:none;
+  background: #60adde;
+  opacity: 0.7;
+  font-size: 20px;
+  color: #fff;
 }

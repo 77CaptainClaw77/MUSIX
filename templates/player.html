@@ -3,12 +3,13 @@
 <header>
 <meta charst="utf-8">
 <title>MUSIX</title>
-
 <link rel="stylesheet" href="{{ url_for('static',filename='css/player.css') }}">
+<link rel="stylesheet" href="{{url_for('static',filename='css/bootstrap.min.css')}}">
+<script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
 </head>
   <body class="body">
 
-    <header class="top">
+<!--    <header class="top">
       <section>
         <div class="container">
           <div class="row end-sm end-md end-lg center-xs center-md center-sm center-lg">
@@ -33,7 +34,7 @@
                 </div>
             </section>
         </header>
-
+-->
   <section class="showcase">
       <div>
   <div class="row center-sm center-xs center-md center-lg">
@@ -49,18 +50,35 @@
 
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <table id="songList">
-
+                        <tr>
+                            <th>Music Controls</th> <th>Song Name</th> <th>Artist Name</th> <th>Album Name</th> <th>Album Cover</th> <th>Favourite</th>
+                        </tr>
+                        <form method="POST">
                         {% for d in data %}
                             <tr>
-                        <td> <audio controls><source src="{{ url_for('static',filename='music/'+(d.song_path).split('/')[-1]) }}" type="audio/mpeg"></audio></td>
-                            <td><h3>{{ d.song_name }}
+                            <td> <audio id="{{ i }}" controls><source src="{{ url_for('static',filename='music/'+d.song_fname) }}" type="audio/mpeg"></audio></td>
+                            <td>{{ d.song_name }} </td>
+                            <td>{{ d.artist_name }} </td>
+                            <td>{{ d.album_name }} </td> 
+                            <td><img src="{{ url_for('static',filename='css/img/d.album_fname') }}" alt=""> </td>
+                            <td> 
+                                {% if d.song_id in favourites %}
+                                <input type="checkbox" name="{{ d.song_id }}" checked>
+                                {%else%}
+                                <input type="checkbox" name="{{ d.song_id }}">
+                                {%endif%}
+                                </td>
                             </tr>
-
+                           
                         {% endfor %}
-                            
+                        <input type="submit" value="Save Preferences">
+                        </form>
 </table>
 </div>
 </div>
 </section>
+<script src="{{ url_for('static',filename='js/player.js') }}" ></script> <!--To prevent multiple files from playing at the same time-->
+
 </body>
 </html>
+

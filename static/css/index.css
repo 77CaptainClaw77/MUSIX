@@ -1,0 +1,11 @@
+.secret_link
+{
+    border:none;
+    background: none;
+    color: black;
+    cursor: pointer;
+}
+.secret_link:hover
+{
+    text-decoration: underline;
+}
