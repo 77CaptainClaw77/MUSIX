@@ -1,3 +1,4 @@
+from newsapi import NewsApiClient as NAC_client
 from flask import Flask
 from flask import request
 import yaml
@@ -87,14 +88,32 @@ def index_page():
             return redirect(url_for('all_music'))
         if 'profile' in request.form:
             return redirect(url_for('profile',u_id=current_user_logged_id))
-    return render_template("index.html")
+        if 'logout' in request.form:
+            return redirect(url_for('log_out'))
+    news_client=NAC_client(api_key='f8fd249bda5f49c1b1ed79d08e99440d')
+    try:
+        all_news=news_client.get_top_headlines(q='music')
+    except:
+        all_news=None
+    all_users=User.query.all()
+    all_songs=Music.query.all()
+    all_albums=Album.query.all()
+    all_artists=Artist.query.all()
+    dashboard_data=dashboard_wrapper(all_users,all_songs,all_albums,all_artists)
+    news_list=[]
+    if all_news==None:
+        news_list='No Internet Error Encountered while Fetching News'
+    else:
+        for news_obj in all_news['articles']:
+            news_list.append(news_obj)
+    return render_template("index.html",news_data=news_list,dash_data=dashboard_data,is_auth=is_auth)
     
 #-------------------------------------------------------------------------------------------
 #Login Functionality
 #---------------------------------------------------------------------------------------------
 @app.route('/login/',methods=['POST','GET'])
 def user_login():
-    global is_auth,current_user_logged_id
+    global is_auth,current_user_logged_id    
     if request.method=='POST':
         if 'signup' in request.form:
             return redirect(url_for('sign_up'))
@@ -125,31 +144,47 @@ def edit_profile(u_id):
         session_profile_edit=db.session
         old_data=User.query.filter_by(user_id=u_id).first()
         u_name=request.form['uname']
+        print(u_name)
         name=request.form['name']
         pass_old=request.form['password']
+        print(pass_old)
+        print(old_data.password)
         pass_new=request.form['new_password']
         ph=request.form['phone']
         em=request.form['email']
-        prof_pic=request.files['profile_pic']
-        if check_password_hash(pass_old,old_data.password)==False:
-            return render_template('edit_profile.html',data=user_data,error="Password Entered is Incorrect")
-        if  not file_validate(prof_pic,'image'):
-            return render_template('edit_profile.html',data=user_data,error="Improper File Format")
+        try:
+            prof_pic=request.files['profile_pic']
+        except:
+            prof_pic=False
+        if pass_new!="":       
+            if check_password_hash(old_data.password,pass_old)==False:
+                return render_template('edit_profile.html',data=user_data,error="Password Entered is Incorrect")
+        if prof_pic:
+            if  not file_validate(prof_pic.filename,'image'):
+                return render_template('edit_profile.html',data=user_data,error="Improper File Format")
         old_data.name=name
         old_data.username=u_name
-        old_data.password=pass_new
+        if pass_new!="":
+            old_data.password=generate_password_hash(pass_new)
         old_data.phone=ph
         old_data.email=em
-        if prof_pic!=None:
-            sec_prof_picname=secure_filename(prof_pic.filename)
-            prof_pic.save(os.path.join('static/img/profile',sec_prof_picname))
-            old_data.profile_picture=sec_prof_picname
+        print(prof_pic)
+        if prof_pic:
+            if prof_pic.filename!='':
+                sec_prof_picname=secure_filename(prof_pic.filename)
+                prof_pic.save(os.path.join('static/img/profile',sec_prof_picname))
+                old_data.profile_picture=sec_prof_picname
+        else:
+            old_data.profile_picture=old_data.profile_picture
+
         try:
             session_profile_edit.commit()
-        except:
+        except Exception as e:
             session_profile_edit.rollback()
             session_profile_edit.flush()
+            print(e)
             return render_template('edit_profile.html',data=user_data,error='Database Error')
+        print("ALL SUCCESS")
         return redirect(url_for('profile',u_id=current_user_logged_id))
         # here changes are made and redirected to the profile page
         #commit changes to DB
@@ -179,6 +214,8 @@ def profile(u_id):
 def sign_up():
     global is_auth,current_user_logged_id
     if request.method=='POST':
+        if 'login' in request.form:
+            return redirect(url_for('user_login'))
         n=request.form['name']
         u_n=request.form['uname']
         p=request.form['password']
@@ -220,9 +257,12 @@ def file_validate(fname,ftype):
             return True
     elif ftype=='image':
         if '.' in fname and fname.rsplit('.',1)[1].lower() in allowed_image_files_types:
+            
             return True
     else:
+        print("I WAS HERE")
         return False
+    print("OR HERE")
     return False
 #Upload Music
 #----------------------------------------------------------------------------------------------
@@ -251,20 +291,24 @@ def upload_song():
         artist_fname=""
         
         if "artist_image_input" not in request.files:
-            artist_path=default_artist_image_path
+            artist_fname='Unknown.jpg'
         else:
             artist_img_file=request.files['artist_image_input']
-            if artist_img_file and file_validate(artist_img_file.filename,'image'):
+            if not artist_img_file:
+                artist_fname='Unknown.jpg'
+            elif artist_img_file and file_validate(artist_img_file.filename,'image'):
                 artist_fname=secure_filename(artist_img_file.filename)
                 artist_img_file.save(os.path.join('./static/img/artist',artist_fname))
                 #artist_path=os.path.join('./static/img/artist',artist_fname)
             else:
                 return render_template('music_upload.html',data={'error':'Incorrect format of image file uploaded'})
         if "album_image_input" not in request.files:
-            album_path=default_album_image_path
+            album_fname='Unknown.jpg'
         else:
-            album_img_file=request.files['artist_image_input']
-            if album_img_file and file_validate(album_img_file.filename,'image'):
+            album_img_file=request.files['album_image_input']
+            if not album_img_file:
+                album_fname='Unknown.jpg'
+            elif file_validate(album_img_file.filename,'image'):
                 album_fname=secure_filename(album_img_file.filename)
                 album_img_file.save(os.path.join('./static/img/album',album_fname))
                 #album_path=os.path.join('./static/img/album',album_fname)
@@ -285,6 +329,7 @@ def upload_song():
             session_new_music.rollback()
             session_new_music.flush()
             return render_template('music_upload.html',data={'error':str(e)})
+        return redirect(url_for('all_music'))
     return render_template('music_upload.html',data={'error':'None'})
 #-----------------------------------------------------------------------------------------------
 #class to wrap music objects
@@ -300,6 +345,22 @@ class music_wrapper:
         self.album_fname=music_data.album.album_fname
 
 #-----------------------------------------------------------------------------------------------
+#class to wrap dashboard data
+#-----------------------------------------------------------------------------------------------
+class dashboard_wrapper:
+    def __init__(self,user_stats,song_stats,album_stats,artist_stats):
+        self.user_count=len(user_stats)
+        self.song_count=len(song_stats)
+        album_name_list=[]
+        for alb in album_stats:
+            album_name_list.append(alb.album_name)
+        self.album_count=len(set(album_name_list))
+        artist_name_list=[]
+        for art in artist_stats:
+            artist_name_list.append(art.artist_name)
+        self.artist_count=len(set(artist_name_list))
+#-----------------------------------------------------------------------------------------------
+#the main music player page
 #-----------------------------------------------------------------------------------------------
 @app.route('/play_music/',methods=['GET','POST'])
 def all_music():  
@@ -307,6 +368,10 @@ def all_music():
     if is_auth==0:
         return redirect(url_for('user_login'))
     if request.method=='POST': #To add a song to favourites
+        if 'upload' in request.form:
+            return redirect(url_for('upload_song')) 
+        if 'filter' in request.form: 
+            return redirect(url_for('favourite_songs'))   
         sess=db.session
         user_pref=User.query.filter_by(user_id=current_user_logged_id).first()
         li=[]
@@ -327,28 +392,68 @@ def all_music():
     user_data=User.query.filter_by(user_id=current_user_logged_id).first()
     favourites=[]
     favourites=user_data.favourites
+    print(favourites)
     favourites=favourites.split(',')
+    print(favourites)
+    if favourites[0]=='':
+        favourites=[]
     for i in range(len(favourites)):
         favourites[i]=int(favourites[i])
     print(favourites)
     for song in all_music_data:
         music_list.append(music_wrapper(song))
     return render_template('player.html',data=music_list,favourites=favourites)
+#display favourites
+#-----------------------------------------------------------------------------------------------
+@app.route('/favourites/',methods=['POST','GET'])
+def favourite_songs():
+    if is_auth==0:
+         return redirect(url_for('user_login'))
+    user_data=User.query.filter_by(user_id=current_user_logged_id).first()
+    music_list=Music.query.all()
+    music_data=[]
+    for song in music_list:
+        music_data.append(music_wrapper(song))
+    #music_data=music_wrapper(music_data)
+    favourites=user_data.favourites
+    favourites=favourites.split(',')
+    if favourites[0]=='':
+        favourites=[]
+    for i in range(len(favourites)):
+        favourites[i]=int(favourites[i])
+    
+    user_favourites=[]
+    print(len(music_data))
+    for m in music_data:
+        print("here"+str(m.song_id))
+        if m.song_id in favourites:            
+            user_favourites.append(m)
+    print(user_favourites)
+    return render_template('favourites.html',data=user_favourites)
+#-----------------------------------------------------------------------------------------------
 #logout functionality
 #-----------------------------------------------------------------------------------------------
 @app.route('/logout/',methods=['POST','GET'])
 def log_out():
     global is_auth,current_user_logged_id
-    if request.method=='POST':
-        is_auth=0
-        current_user_logged_id=-1
-        return redirect('index_page')
+    is_auth=0
+    current_user_logged_id=-1
+    return redirect(url_for('index_page'))
 #-----------------------------------------------------------------------------------------------
-
-
+#show song information
+#-----------------------------------------------------------------------------------------------
+@app.route('/view_music_data/<int:s_id>',methods=['POST','GET'])
+def view_data(s_id):
+    if is_auth==0:
+        return redirect(url_for('user_login'))
+    song_data=Music.query.filter_by(song_id=s_id).first()
+    m_data=music_wrapper(song_data)
+    return render_template('music_info.html',music_data=m_data)
+    
+#-----------------------------------------------------------------------------------------------
 #Running The Server
 #-----------------------------------------------------------------------------------------------
 if __name__=='__main__':
     db.create_all()
-    app.run(port=8085,debug=True)
+    app.run(port=8081,debug=True)
 #-----------------------------------------------------------------------------------------------

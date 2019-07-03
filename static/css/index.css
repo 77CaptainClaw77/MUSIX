@@ -1,11 +1,26 @@
-.secret_link
+body
 {
-    border:none;
-    background: none;
-    color: black;
-    cursor: pointer;
+  font-family: sans-serif;
+  background-image: url("../img/index.jpg");
+  
+  background-size: 100%;
+  color: white;
 }
-.secret_link:hover
+.title
 {
-    text-decoration: underline;
+    color: white;
+    text-decoration-line: underline;
+}
+.navbar navbar-expand-sm bg-dark navbar-dark
+{
+	opacity: 0.25;
+}
+.button-rshift
+{
+    margin-left: 900px;
+    margin-right: 60px;
+}
+.logout-button
+{
+  margin-left: 60px;
 }

@@ -1,3 +1,12 @@
+body
+{
+  font-family: sans-serif;
+  color:#3c3939;
+  background-image: url("../img/profile.jpg");
+  background-repeat: no-repeat;
+  background-size: 100%;
+
+}
 .edit_profile
 {
   max-width: 400px;
@@ -9,7 +18,7 @@
   padding-top: 20px;
   padding-bottom: 20px;
   color:#fff;
-  margin-top: 100px;
+  margin-top: 20px;
 }
 .save
 {
